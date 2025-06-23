@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Model;
 
 namespace Dot.Net.WebApi.Domain
 {
@@ -17,16 +18,16 @@ namespace Dot.Net.WebApi.Domain
         [StringLength(30)]
         public string BidType { get; set; } = null!;
 
-        [Column(TypeName = "decimal(10,2)")]
+        [Range(0.01, 1000000.00, ErrorMessage = "Price must be between 0.01 and 1,000,000.00")]
         public double? BidQuantity { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
+        [Range(0.01, 1000000.00, ErrorMessage = "Price must be between 0.01 and 1,000,000.00")]
         public double? AskQuantity { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
+        [Range(0.01, 1000000.00, ErrorMessage = "Price must be between 0.01 and 1,000,000.00")]
         public double? Bid { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
+        [Range(0.01, 1000000.00, ErrorMessage = "Price must be between 0.01 and 1,000,000.00")]
         public double? Ask { get; set; }
 
         [StringLength(125)]
@@ -71,4 +72,5 @@ namespace Dot.Net.WebApi.Domain
         [StringLength(125)]
         public string Side { get; set; } = null!;
     }
+
 }

@@ -1,6 +1,7 @@
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Repositories.Interfaces;
+using P7CreateRestApi.Services.Interfaces;
 using System.Threading.Tasks;
 namespace Dot.Net.WebApi.Controllers
 {
@@ -8,35 +9,58 @@ namespace Dot.Net.WebApi.Controllers
     [Route("[controller]")]
     public class BidListController : ControllerBase
     {
-        private readonly IBidListRepository _repository;
-        public BidListController(IBidListRepository repository)
+        private readonly IBidListService _bidListService;
+        public BidListController(IBidListService service)
         {
-            _repository = repository;
+            _bidListService = service;
         }
-        [HttpGet]
+        [HttpPost]
         [Route("validate")]
-        public async Task<IActionResult> Validate([FromBody] BidList bidList)
+        public async Task<IActionResult> AddBid([FromBody] BidList bidList)
+        {
+
+            // Validate the bidList object
+            var validationResult = Validate(bidList);
+            if (!validationResult)
+            {
+                return BadRequest(validationResult);
+            }
+            // If validation is successful, save the bidList to the database
+            var result = await _bidListService.CreateBidAsync(bidList);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Errors);
+            }
+            // Return the created bidList
+            return Ok(result.Data);
+        }
+        private bool Validate(BidList bidList)
         {
             // TODO: check data valid and save to db, after saving return bid list
-            if (bidList == null)
+            if (bidList == null || string.IsNullOrEmpty(bidList.Account) || bidList.BidQuantity <= 0 || string.IsNullOrEmpty(bidList.BidType))
             {
-                return BadRequest("BidList data is required.");
+                return false; // Invalid data
             }
-            // Here you would typically validate the bidList object
-            if(string.IsNullOrEmpty(bidList.Account) || string.IsNullOrEmpty(bidList.BidType))
-            {
-                return BadRequest("Invalid bid list data.");
-            }
-            await _repository.CreateAsync(bidList); // Save to database
+            return true; // Valid data
 
-            return Ok(bidList);
         }
 
         [HttpGet]
         [Route("update/{id}")]
-        public IActionResult ShowUpdateForm(int id)
+        public async Task<IActionResult> ShowUpdateForm(int id)
         {
-            return Ok();
+            // TODO: get bid by Id and to model then show to the form
+            if (id <= 0)
+            {
+                return BadRequest("Invalid bid ID.");
+            }
+            var result = await _bidListService.GetBidByIdAsync(id);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.Errors);
+            }
+            return Ok(result.Data);
+
         }
 
         [HttpPost]
@@ -44,29 +68,34 @@ namespace Dot.Net.WebApi.Controllers
         public async Task<IActionResult> UpdateBid(int id, [FromBody] BidList bidList)
         {
             // TODO: check required fields, if valid call service to update Bid and return list Bid
-            if (bidList == null || !await _repository.ExistsAsync(id))
+            if (id <= 0 || bidList == null)
             {
-                return NotFound();
+                return BadRequest("Invalid bid list data.");
             }
-            bidList.BidListId = id; // Ensure the ID is set correctly
-            var updatedBid = await _repository.UpdateAsync(bidList);
-            return Ok(updatedBid);
+            var result = await _bidListService.UpdateBidAsync(id, bidList);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Errors);
+            }
+            return Ok(result.Data);
         }
 
         [HttpDelete]
         [Route("{id}")]
         public async Task<IActionResult> DeleteBid(int id)
         {
-            if (!await _repository.ExistsAsync(id))
+            // TODO: Find bid by Id and delete the bid
+            if (id <= 0)
             {
-                return NotFound();
+                return BadRequest("Invalid bid ID.");
             }
-            var deleted = await _repository.DeleteAsync(id);
-            if (!deleted)
+            var result = await _bidListService.DeleteBidAsync(id);
+            if (!result.IsSuccess)
             {
-                return BadRequest("Failed to delete the bid.");
+                return BadRequest(result.Errors);
             }
-            return Ok();
+            return Ok(new { Message = "Bid deleted successfully." });
+
         }
     }
 }

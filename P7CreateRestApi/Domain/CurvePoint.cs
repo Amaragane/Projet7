@@ -8,15 +8,12 @@ namespace Dot.Net.WebApi.Domain
     {
         [Key]
         public int Id { get; set; }
-
+        [Required(ErrorMessage ="Ne dois pas être vide")]
         public byte? CurveId { get; set; }
 
         public DateTime? AsOfDate { get; set; }
 
-        [Column(TypeName = "decimal(10,2)")]
         public double? Term { get; set; }
-
-        [Column(TypeName = "decimal(10,2)")]
         public double? CurvePointValue { get; set; }
 
         public DateTime? CreationDate { get; set; }
