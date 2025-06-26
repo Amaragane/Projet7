@@ -7,6 +7,7 @@ namespace Dot.Net.WebApi.Controllers
     public class HomeController : ControllerBase
     {
         [HttpGet]
+        [Route("")]
         public IActionResult Get()
         {
             return Ok();

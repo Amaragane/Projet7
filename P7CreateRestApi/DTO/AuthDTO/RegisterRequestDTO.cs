@@ -29,7 +29,6 @@ namespace P7CreateRestApi.DTO.AuthDTO
         [Phone(ErrorMessage = "Invalid phone number format")]
         public string? PhoneNumber { get; set; }
 
-        public string Role { get; set; } = "User";
         public IList<string> Roles { get; internal set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using P7CreateRestApi.Repositories.Interfaces;
 using P7CreateRestApi.Services.Interfaces;
 
@@ -48,6 +49,7 @@ namespace P7CreateRestApi.Services
 
         public async Task<ServiceResult<BidList>> CreateBidAsync(BidList bidList)
         {
+            
             try
             {
                 bidList.CreationDate = DateTime.Now;

@@ -5,38 +5,34 @@ namespace P7CreateRestApi.Middleware
     public class TokenRenewalMiddleware
     {
         private readonly RequestDelegate _next;
-        private readonly IJwtService _jwtService;
         private readonly ILogger<TokenRenewalMiddleware> _logger;
 
+        // Supprimer IJwtService du constructeur
         public TokenRenewalMiddleware(
             RequestDelegate next,
-            IJwtService jwtService,
             ILogger<TokenRenewalMiddleware> logger)
         {
             _next = next;
-            _jwtService = jwtService;
             _logger = logger;
         }
 
-        public async Task InvokeAsync(HttpContext context)
+        // Injecter IJwtService dans InvokeAsync
+        public async Task InvokeAsync(HttpContext context, IJwtService jwtService)
         {
+            // vérifier si on doit renouveler le token
+            await TryRenewTokenAsync(context, jwtService);
             // Traiter la requête normalement
             await _next(context);
 
-            // ✅ Après traitement, vérifier si on doit renouveler le token
-            await TryRenewTokenAsync(context);
         }
 
-        private async Task TryRenewTokenAsync(HttpContext context)
+        private async Task TryRenewTokenAsync(HttpContext context, IJwtService jwtService)
         {
             try
             {
                 // Vérifier seulement pour les réponses réussies et authentifiées
-                if (context.Response.StatusCode != 200 ||
-                    !context.User.Identity?.IsAuthenticated == true)
-                {
-                    return;
-                }
+                if (context.Response.StatusCode != 200 )  return;
+                
 
                 // Récupérer le token depuis l'en-tête Authorization
                 var authHeader = context.Request.Headers["Authorization"].FirstOrDefault();
@@ -46,15 +42,16 @@ namespace P7CreateRestApi.Middleware
                 }
 
                 var currentToken = authHeader.Substring("Bearer ".Length).Trim();
-
+                var principal =  jwtService.ValidateTokenAsync(currentToken);
+                if (!principal.IsSuccess) return; // Token invalide
                 // Vérifier si le token va expirer bientôt
-                if (!_jwtService.IsTokenExpiringSoon(currentToken))
+                if (!jwtService.IsTokenExpiringSoon(currentToken))
                 {
                     return; // Token encore bon
                 }
 
                 // Renouveler le token
-                var renewalResult = await _jwtService.RenewTokenIfNeededAsync(currentToken);
+                var renewalResult =  await jwtService.RenewTokenIfNeededAsync(currentToken);
                 if (renewalResult.IsSuccess && renewalResult.Data != currentToken)
                 {
                     // Ajouter le nouveau token dans les headers de réponse

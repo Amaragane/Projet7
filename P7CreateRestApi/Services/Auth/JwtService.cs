@@ -43,8 +43,8 @@ public class JwtService : IJwtService
         {
             claims.Add(new Claim(ClaimTypes.Role, role));
         }
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? ""));
+        var jwtSettings = _configuration.GetSection("JwtSettings").Get<JwtSettings>();
+        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key));
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
@@ -61,21 +61,26 @@ public class JwtService : IJwtService
     /// <summary>
     /// ✅ Valide un token JWT
     /// </summary>
-    public async Task<ServiceResult<bool>> ValidateTokenAsync(string token)
+    public  ServiceResult<bool> ValidateTokenAsync(string token)
     {
         try
         {
             var tokenHandler = new JwtSecurityTokenHandler();
-            var key = Encoding.UTF8.GetBytes(_configuration["Jwt:Key"] ?? "");
+            var key = Encoding.UTF8.GetBytes(_configuration["JwtSettings:Key"]);
+            var audience = _configuration["JwtSettings:Audience"]; // Récupération explicite
+
+            // Validation manuelle de l'audience
+            if (string.IsNullOrEmpty(audience))
+                throw new InvalidOperationException("JWT Audience not configured");
 
             var validationParameters = new TokenValidationParameters
             {
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(key),
                 ValidateIssuer = true,
-                ValidIssuer = _configuration["Jwt:Issuer"],
+                ValidIssuer = _configuration["JwtSettings:Issuer"],
                 ValidateAudience = true,
-                ValidAudience = _configuration["Jwt:Audience"],
+                ValidAudience = audience, // 🔑 Utilisation de ValidAudience (singulier)
                 ValidateLifetime = true,
                 ClockSkew = TimeSpan.Zero
             };
@@ -157,7 +162,7 @@ public class JwtService : IJwtService
         try
         {
             // 1. Vérifier si le token est encore valide
-            var validationResult = await ValidateTokenAsync(currentToken);
+            var validationResult =  ValidateTokenAsync(currentToken);
             if (validationResult.IsSuccess)
             {
                 // 2. Vérifier s'il va expirer bientôt

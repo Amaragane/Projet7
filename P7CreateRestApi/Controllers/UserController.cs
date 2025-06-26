@@ -19,9 +19,9 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpGet]
         [Route("list")]
-        public async Task<IActionResult> Home()
+        public IActionResult Home()
         {
-            var result = await _userService.GetAllUsersAsync();
+            var result =  _userService.GetAllUsersAsync();
             if (result.IsSuccess)
             {
                 return Ok(result.Data);

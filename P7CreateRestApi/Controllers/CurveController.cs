@@ -4,6 +4,7 @@ using P7CreateRestApi.Repositories.Interfaces;
 using P7CreateRestApi.Services.Interfaces;
 using P7CreateRestApi.DTO.CurveDTO;
 using P7CreateRestApi.DTO.Maping;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -16,7 +17,7 @@ namespace Dot.Net.WebApi.Controllers
         {
             _curvePointService = service;
         }
-
+        [AllowAnonymous]
         [HttpGet]
         [Route("list")]
         public async Task<IActionResult> Home()

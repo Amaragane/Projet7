@@ -178,7 +178,7 @@ namespace P7CreateRestApi.Services.Auth
         }
         public async Task<ServiceResult<bool>> ValidateTokenAsync(string token)
         {
-            return await _jwtService.ValidateTokenAsync(token);
+            return  _jwtService.ValidateTokenAsync(token);
         }
 
         public async Task<ServiceResult<AuthResponseDTO>> RefreshTokenAsync(string refreshToken)

@@ -15,6 +15,24 @@ namespace P7CreateRestApi.DTO.Maping
                 Account = dto.Account,
                 BidType = dto.BidType,
                 BidQuantity = dto.BidQuantity,
+                AskQuantity = 100.0,
+                Bid = 50.0,
+                Ask = 55.0,
+                Benchmark = "Default Benchmark",
+                BidListDate = DateTime.UtcNow,
+                Commentary = "Default commentary text",
+                BidSecurity = "Default Security",
+                BidStatus = "Active",
+                Trader = "John Doe",
+                Book = "Default Book",
+                CreationName = "System",
+                CreationDate = DateTime.UtcNow,
+                RevisionName = "System",
+                RevisionDate = DateTime.UtcNow,
+                DealName = "Default Deal",
+                DealType = "Type A",
+                SourceListId = "SRC-001",
+                Side = "Buy"
 
             };
         }

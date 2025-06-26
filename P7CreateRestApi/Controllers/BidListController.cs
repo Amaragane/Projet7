@@ -1,4 +1,5 @@
 using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore.Metadata.Conventions;
 using P7CreateRestApi.DTO.BidDTO;
@@ -18,6 +19,7 @@ namespace Dot.Net.WebApi.Controllers
             _bidListService = service;
         }
         [HttpPost]
+        [Authorize]
         [Route("validate")]
         public async Task<IActionResult> AddBid([FromBody] CreateBidDTO bidList)
         {

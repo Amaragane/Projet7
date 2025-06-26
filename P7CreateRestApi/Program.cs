@@ -1,4 +1,4 @@
-using Dot.Net.WebApi.Data;
+﻿using Dot.Net.WebApi.Data;
 using Dot.Net.WebApi.Repositories;
 using Microsoft.EntityFrameworkCore;
 using P7CreateRestApi.Repositories.Interfaces;
@@ -11,6 +11,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using P7CreateRestApi.Middleware;
+using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -25,6 +28,12 @@ if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
 {
     throw new InvalidOperationException("JWT settings are not properly configured");
 }
+if (string.IsNullOrWhiteSpace(jwtSettings.Key))
+    throw new InvalidOperationException("JWT Key is not configured");
+if (string.IsNullOrWhiteSpace(jwtSettings.Issuer))
+    throw new InvalidOperationException("JWT Issuer is not configured");
+if (string.IsNullOrWhiteSpace(jwtSettings.Audience))
+    throw new InvalidOperationException("JWT Audience is not configured");
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -37,15 +46,19 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings?.Key ?? "")),
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Key)), // Key est validée
+
         ValidateIssuer = true,
-        ValidIssuer = jwtSettings?.Issuer,
+        ValidIssuers = new List<string> { jwtSettings.Issuer }, // Issuer validé
+        ValidIssuer = jwtSettings.Issuer, // Issuer validé
         ValidateAudience = true,
-        ValidAudience = jwtSettings?.Audience,
+        ValidAudiences = new List<string> { jwtSettings.Audience}, // Audience validée
+        ValidAudience = jwtSettings.Audience, // Audience validée
         ValidateLifetime = true,
         ClockSkew = TimeSpan.Zero
     };
 });
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -77,7 +90,9 @@ builder.Services.AddSwaggerGen(c =>
         }
     });
 });
-
+builder.Services.AddIdentity<User, IdentityRole>() // ← Utilisez votre classe User ici
+        .AddEntityFrameworkStores<LocalDbContext>()
+        .AddDefaultTokenProviders();
 builder.Services.AddDbContext<LocalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 // ============ REPOSITORIES ============
@@ -93,7 +108,7 @@ builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-// Services m�tier existants
+// Services métier existants
 builder.Services.AddScoped<IBidListService, BidListService>();
 builder.Services.AddScoped<ICurvePointService, CurvePointService>();
 builder.Services.AddScoped<IRatingService, RatingService>();
@@ -107,12 +122,16 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
-
+app.UseExceptionHandler("/error");
+app.MapGet("/error", (HttpContext context) =>
+    Results.Problem(detail: context.Features.Get<IExceptionHandlerFeature>()?.Error.Message));
 app.UseHttpsRedirection();
 
-app.MapControllers();
+app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 app.UseMiddleware<TokenRenewalMiddleware>();
+app.MapControllers();
 app.Run();

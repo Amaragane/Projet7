@@ -160,7 +160,7 @@ namespace P7CreateRestApi.Controllers
                     return BadRequest(ApiResponseDTO<TokenStatusDTO>.ErrorResult("Token manquant"));
                 }
 
-                var isValid = await _jwtService.ValidateTokenAsync(currentToken);
+                var isValid =  _jwtService.ValidateTokenAsync(currentToken);
                 var isExpiringSoon = _jwtService.IsTokenExpiringSoon(currentToken);
 
                 var tokenStatus = new TokenStatusDTO
