@@ -1,5 +1,6 @@
 ﻿using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Services.Models;
+using P7CreateRestApi.DTO.BidDTO;
 namespace P7CreateRestApi.Services.Interfaces
 {
     public interface IBidListService

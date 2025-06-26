@@ -30,41 +30,41 @@ namespace Dot.Net.WebApi.Domain
         public double? SellPrice { get; set; }
 
         public DateTime? TradeDate { get; set; }
-
+        [Required]
         [StringLength(125)]
         public string TradeSecurity { get; set; } = null!;
-
+        [Required]
         [StringLength(10)]
         public string TradeStatus { get; set; } = null!;
-
+        [Required]
         [StringLength(125)]
         public string Trader { get; set; } = null!;
-
+        [Required]
         [StringLength(125)]
         public string Benchmark { get; set; } = null!;
-
+        [Required]
         [StringLength(125)]
         public string Book { get; set; } = null!;
-
+        [Required]
         [StringLength(125)]
         public string CreationName { get; set; } = null!;
 
         public DateTime? CreationDate { get; set; }
-
+        [Required]
         [StringLength(125)]
         public string RevisionName { get; set; } = null!;
 
         public DateTime? RevisionDate { get; set; }
-
+        [Required]
         [StringLength(125)]
         public string DealName { get; set; } = null!;
-
+        [Required]
         [StringLength(125)]
         public string DealType { get; set; } = null!;
-
+        [Required]
         [StringLength(125)]
         public string SourceListId { get; set; } = null!;
-
+        [Required]
         [StringLength(125)]
         public string Side { get; set; } = null!;
     }

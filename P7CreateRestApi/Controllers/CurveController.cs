@@ -2,6 +2,8 @@ using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Repositories.Interfaces;
 using P7CreateRestApi.Services.Interfaces;
+using P7CreateRestApi.DTO.CurveDTO;
+using P7CreateRestApi.DTO.Maping;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -17,29 +19,36 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpGet]
         [Route("list")]
-        public IActionResult Home()
+        public async Task<IActionResult> Home()
         {
-            return Ok();
+            var result = await _curvePointService.GetAllCurvePointsAsync();
+            return Ok(result.Data);
         }
 
         [HttpPost]
         [Route("add")]
-        public IActionResult AddCurvePoint([FromBody]CurvePoint curvePoint)
+        public async  Task<IActionResult> AddCurvePoint([FromBody] CreateCurvePointDTO curvePoint)
         {
-            return Ok();
-        }
-
-        private bool Validate(CurvePoint curvePoint)
-        {
+            var curvePointEntity = CurvePointDTOMappings.ToEntity(curvePoint);
+            // Validate the curvePoint object
             if (curvePoint == null)
             {
-                return false;
+                return BadRequest("CurvePoint data is required.");
             }
-
-
-            return true;
-            // TODO: check data valid and save to db, after saving return curvepoint 
+            if (!ModelState.IsValid)
+            {
+                return BadRequest("Invalid CurvePoint data.");
+            }
+            // If validation is successful, save the curvePoint to the database
+            var result =  await _curvePointService.CreateCurvePointAsync(curvePointEntity);
+            if (!result.IsSuccess)
+            {
+                return BadRequest(result.Errors);
+            }
+            // Return the created curvePoint
+            return Ok(result.Data);
         }
+
 
         [HttpGet]
         [Route("update/{id}")]
@@ -58,7 +67,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("update/{id}")]
-        public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] CurvePoint curvePoint)
+        public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] GetUpdateCurvePointDTO curvePoint)
         {
             // TODO: check required fields, if valid call service to update Curve and return Curve list
             if (curvePoint == null)
@@ -69,7 +78,10 @@ namespace Dot.Net.WebApi.Controllers
             {
                 return BadRequest("Invalid CurvePoint ID.");
             }
-            var result = await _curvePointService.UpdateCurvePointAsync(id, curvePoint);
+            // Convert GetUpdateCurvePointDTO to CurvePoint entity
+            var curvePointEntity = CurvePointDTOMappings.ToEntity(curvePoint);
+
+            var result = await _curvePointService.UpdateCurvePointAsync(id, curvePointEntity);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Errors);

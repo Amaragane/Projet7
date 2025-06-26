@@ -1,28 +1,23 @@
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.Identity;
 
 namespace Dot.Net.WebApi.Domain
 {
     [Table("Users")]
-    public class User
+
+    public class User : IdentityUser
     {
-        [Key]
-        public int Id { get; set; }
-
-        [Required]
-        [StringLength(125)]
-        public string Username { get; set; } = null!;
-
-        [Required]
-        [StringLength(125)]
-        public string Password { get; set; } = null!;
-
         [Required]
         [StringLength(125)]
         public string Fullname { get; set; } = null!;
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+        public DateTime? LastLoginAt { get; set; } = null;
 
         [Required]
-        [StringLength(125)]
-        public string Role { get; set; } = null!;
+        [StringLength(50)]
+        public IList<string> Roles { get; set; } = new List<string> { "User" };
+
+        public bool IsActive { get; set; } = true;
     }
 }

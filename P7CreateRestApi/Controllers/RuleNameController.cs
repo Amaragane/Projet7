@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Repositories.Interfaces;
+using P7CreateRestApi.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -8,10 +9,10 @@ namespace Dot.Net.WebApi.Controllers
     public class RuleNameController : ControllerBase
     {
         // TODO: Inject RuleName service
-        private readonly IRuleNameRepository _ruleNameRepository;
-        public RuleNameController(IRuleNameRepository ruleNameRepository)
+        private readonly IRuleNameService _ruleNameService;
+        public RuleNameController(IRuleNameService ruleNameService)
         {
-            _ruleNameRepository = ruleNameRepository;
+            _ruleNameService = ruleNameService;
         }
 
         [HttpGet]
@@ -19,41 +20,35 @@ namespace Dot.Net.WebApi.Controllers
         public async Task<IActionResult> Home()
         {
             // TODO: find all RuleName, add to model
-            var ruleNames = await _ruleNameRepository.GetAllAsync();
-            return Ok(ruleNames);
+            var ruleNames = await _ruleNameService.GetAllRulesAsync();
+            return Ok(ruleNames.Data);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("add")]
-        public IActionResult AddRuleName([FromBody]RuleName trade)
+        public async Task<IActionResult> AddRuleName([FromBody]RuleName trade)
         {
-            return Ok();
-        }
-
-        [HttpGet]
-        [Route("validate")]
-        public async Task<IActionResult> Validate([FromBody]RuleName trade)
-        {
-            // TODO: check data valid and save to db, after saving return RuleName list
-            if (trade == null)
+            if (!ModelState.IsValid)
             {
-                return BadRequest("RuleName cannot be null.");
-            }
 
-            return Ok();
+                return BadRequest(ModelState);
+            }
+                var result = await _ruleNameService.CreateRuleAsync(trade);
+                return Ok(result.Data);
         }
+
 
         [HttpGet]
         [Route("update/{id}")]
         public async Task<IActionResult> ShowUpdateForm(int id)
         {
             // TODO: get RuleName by Id and to model then show to the form
-            var ruleName = await _ruleNameRepository.GetByIdAsync(id);
-            if (ruleName == null)
+            var ruleName = await _ruleNameService.GetRuleByIdAsync(id);
+            if (!ruleName.IsSuccess)
             {
-                return NotFound($"RuleName with ID {id} not found.");
+                return NotFound(ruleName.Errors);
             }
-            return Ok(ruleName);
+            return Ok(ruleName.Data);
 
         }
 
@@ -62,25 +57,30 @@ namespace Dot.Net.WebApi.Controllers
         public async Task<IActionResult> UpdateRuleName(int id, [FromBody] RuleName rating)
         {
             // TODO: check required fields, if valid call service to update RuleName and return RuleName list
-            if (rating == null || string.IsNullOrEmpty(rating.Name) || string.IsNullOrEmpty(rating.Description))
+            if (!ModelState.IsValid)
             {
-                return BadRequest("Invalid RuleName data.");
+                return BadRequest(ModelState);
             }
-            var existingRuleName = await _ruleNameRepository.GetByIdAsync(id);
-            if (existingRuleName == null)
+            var existingRuleName = await _ruleNameService.GetRuleByIdAsync(id);
+            if (!existingRuleName.IsSuccess)
             {
-                return NotFound($"RuleName with ID {id} not found.");
+                return NotFound(existingRuleName.Errors);
             }
-
-            return Ok();
+            var result = await _ruleNameService.UpdateRuleAsync(id, rating);
+            return Ok(result.Data);
         }
 
         [HttpDelete]
         [Route("{id}")]
-        public IActionResult DeleteRuleName(int id)
+        public async Task<IActionResult> DeleteRuleName(int id)
         {
             // TODO: Find RuleName by Id and delete the RuleName, return to Rule list
-            return Ok();
+            var result = await _ruleNameService.DeleteRuleAsync(id);
+            if (!result.IsSuccess)
+            {
+                return NotFound(result.Errors);
+            }
+            return RedirectToAction("Home");
         }
     }
 }

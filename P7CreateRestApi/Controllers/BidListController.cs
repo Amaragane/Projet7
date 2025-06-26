@@ -1,5 +1,8 @@
 using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Conventions;
+using P7CreateRestApi.DTO.BidDTO;
+using P7CreateRestApi.DTO.Maping;
 using P7CreateRestApi.Repositories.Interfaces;
 using P7CreateRestApi.Services.Interfaces;
 using System.Threading.Tasks;
@@ -16,17 +19,19 @@ namespace Dot.Net.WebApi.Controllers
         }
         [HttpPost]
         [Route("validate")]
-        public async Task<IActionResult> AddBid([FromBody] BidList bidList)
+        public async Task<IActionResult> AddBid([FromBody] CreateBidDTO bidList)
         {
 
             // Validate the bidList object
-            var validationResult = Validate(bidList);
-            if (!validationResult)
+            if (!ModelState.IsValid)
             {
-                return BadRequest(validationResult);
+                return BadRequest(ModelState);
             }
             // If validation is successful, save the bidList to the database
-            var result = await _bidListService.CreateBidAsync(bidList);
+
+            // Convert CreateBidDTO to BidList entity
+            var bidListEntity = BidDTOMappings.ToEntity(bidList);
+            var result = await _bidListService.CreateBidAsync(bidListEntity);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Errors);
@@ -34,18 +39,9 @@ namespace Dot.Net.WebApi.Controllers
             // Return the created bidList
             return Ok(result.Data);
         }
-        private bool Validate(BidList bidList)
-        {
-            // TODO: check data valid and save to db, after saving return bid list
-            if (bidList == null || string.IsNullOrEmpty(bidList.Account) || bidList.BidQuantity <= 0 || string.IsNullOrEmpty(bidList.BidType))
-            {
-                return false; // Invalid data
-            }
-            return true; // Valid data
 
-        }
 
-        [HttpGet]
+        [HttpPost]
         [Route("update/{id}")]
         public async Task<IActionResult> ShowUpdateForm(int id)
         {
@@ -65,14 +61,16 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpPost]
         [Route("update/{id}")]
-        public async Task<IActionResult> UpdateBid(int id, [FromBody] BidList bidList)
+        public async Task<IActionResult> UpdateBid(int id, [FromBody] GetUpdateBidDTO bidList)
         {
             // TODO: check required fields, if valid call service to update Bid and return list Bid
             if (id <= 0 || bidList == null)
             {
                 return BadRequest("Invalid bid list data.");
             }
-            var result = await _bidListService.UpdateBidAsync(id, bidList);
+            // Convert GetUpdateBidDTO to BidList entity
+            var bidListEntity = BidDTOMappings.ToEntity(bidList);
+            var result = await _bidListService.UpdateBidAsync(id, bidListEntity);
             if (!result.IsSuccess)
             {
                 return BadRequest(result.Errors);

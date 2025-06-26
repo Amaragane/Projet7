@@ -1,6 +1,6 @@
 using Dot.Net.WebApi.Controllers.Domain;
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Repositories.Interfaces;
+using P7CreateRestApi.Services.Interfaces;
 
 namespace Dot.Net.WebApi.Controllers
 {
@@ -9,10 +9,10 @@ namespace Dot.Net.WebApi.Controllers
     public class RatingController : ControllerBase
     {
         // TODO: Inject Rating service
-        private readonly IRatingRepository _repository;
-        public RatingController(IRatingRepository repository)
+        private readonly IRatingService _services;
+        public RatingController(IRatingService services)
         {
-            _repository = repository;
+            _services = services;
         }
 
 
@@ -21,31 +21,33 @@ namespace Dot.Net.WebApi.Controllers
         public IActionResult Home()
         {
             // TODO: find all Rating, add to model
-            return Ok();
+            var result = _services.GetAllRatingsAsync().Result;
+
+            return Ok(result.Data);
         }
 
-        [HttpGet]
+        [HttpPost]
         [Route("add")]
         public IActionResult AddRatingForm([FromBody]Rating rating)
         {
-            return Ok();
+            if (ModelState.IsValid)
+            {
+                var result = _services.CreateRatingAsync(rating).Result;
+                return Ok(result.Data);
+            }
+            return BadRequest(ModelState);
         }
 
-        private bool Validate(Rating rating)
-        {
-            // TODO: check data valid and save to db, after saving return Rating list
-            return false;
-        }
 
         [HttpGet]
         [Route("update/{id}")]
         public async Task<IActionResult> ShowUpdateForm(int id)
         {
             // TODO: get Rating by Id and to model then show to the form
-            var rating = await _repository.GetByIdAsync(id);
-            if (rating == null)
+            var rating = await _services.GetRatingByIdAsync(id);
+            if (rating.IsSuccess)
             {
-                return NotFound();
+                return NotFound(rating.Errors);
             }
             return Ok(rating);
         }
@@ -55,26 +57,21 @@ namespace Dot.Net.WebApi.Controllers
         public async Task<IActionResult> UpdateRating(int id, [FromBody] Rating rating)
         {
             // TODO: check required fields, if valid call service to update Rating and return Rating list
-            if (rating == null || !ModelState.IsValid)
+            if (!ModelState.IsValid)
             {
                 return BadRequest(ModelState);
             }
-            if (rating.Id != id)
+            var existingRating =await _services.UpdateRatingAsync(id,rating);
+            if (!existingRating.IsSuccess)
             {
-                return BadRequest("Rating ID mismatch.");
+                return NotFound(existingRating.Errors);
             }
-            // à finir de vérifier
-            var existingRating = await _repository.GetByIdAsync(id);
-            if (existingRating == null)
-            {
-                return NotFound();
-            }
+
             // Update the existing rating with the new values
 
-            await _repository.UpdateAsync(rating);
-            
 
-            return Ok();
+
+            return RedirectToAction("Home");
         }
 
         [HttpDelete]
@@ -82,13 +79,13 @@ namespace Dot.Net.WebApi.Controllers
         public async Task<IActionResult> DeleteRating(int id)
         {
             // TODO: Find Rating by Id and delete the Rating, return to Rating list
-            var exists = await _repository.ExistsAsync(id);
-            if (!exists)
+
+            var deleted = await _services.DeleteRatingAsync(id);
+            if (!deleted.IsSuccess)
             {
-                return NotFound();
+                return NotFound(deleted.Errors);
             }
-            var deleted = await _repository.DeleteAsync(id);
-            return Ok();
+            return RedirectToAction("Home");
         }
     }
 }
