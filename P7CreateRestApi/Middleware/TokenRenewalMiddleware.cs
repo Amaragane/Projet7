@@ -19,12 +19,17 @@ namespace P7CreateRestApi.Middleware
         // Injecter IJwtService dans InvokeAsync
         public async Task InvokeAsync(HttpContext context, IJwtService jwtService)
         {
-            // vérifier si on doit renouveler le token
-            await TryRenewTokenAsync(context, jwtService);
-            // Traiter la requête normalement
-            await _next(context);
-
+            try
+            {
+                await TryRenewTokenAsync(context, jwtService);
+                await _next(context);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Token renewal failed");
+            }
         }
+
 
         private async Task TryRenewTokenAsync(HttpContext context, IJwtService jwtService)
         {

@@ -31,7 +31,7 @@ namespace P7CreateRestApi.Services.Auth
             try
             {
                 var user = await _userManager.FindByEmailAsync(loginRequest.Email);
-                if (user == null || !user.IsActive)
+                if (user == null)
                 {
                     return ServiceResult<AuthResponseDTO>.Failure("Email ou mot de passe incorrect");
                 }
@@ -44,7 +44,6 @@ namespace P7CreateRestApi.Services.Auth
                 }
 
                 // Mettre à jour la dernière connexion
-                user.LastLoginAt = DateTime.UtcNow;
                 await _userManager.UpdateAsync(user);
 
                 // Générer le token JWT
@@ -63,9 +62,7 @@ namespace P7CreateRestApi.Services.Auth
                         Fullname = user.Fullname,
                         PhoneNumber = user.PhoneNumber,
                         Roles = user.Roles, // Votre champ Role simple
-                        CreatedAt = user.CreatedAt,
-                        LastLoginAt = user.LastLoginAt,
-                        IsActive = user.IsActive,
+
                         EmailConfirmed = user.EmailConfirmed
                     }
                 };
@@ -105,8 +102,7 @@ namespace P7CreateRestApi.Services.Auth
                     PhoneNumber = registerRequest.PhoneNumber,
                     Roles = registerRequest.Roles,
                     EmailConfirmed = true,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
+
                 };
                 // UserManager gère le hachage du mot de passe automatiquement
                 var result = await _userManager.CreateAsync(user, registerRequest.Password);
@@ -132,8 +128,7 @@ namespace P7CreateRestApi.Services.Auth
                         Fullname = user.Fullname,
                         PhoneNumber = user.PhoneNumber,
                         Roles = user.Roles,
-                        CreatedAt = user.CreatedAt,
-                        IsActive = user.IsActive,
+
                         EmailConfirmed = user.EmailConfirmed
                     }
                 };

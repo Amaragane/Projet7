@@ -1,8 +1,9 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.DTO.AuthDTO;
-using P7CreateRestApi.Services.Auth;
 using P7CreateRestApi.DTO.CommonDTO;
+using P7CreateRestApi.Services.Auth;
 
 namespace P7CreateRestApi.Controllers
 {
@@ -12,11 +13,13 @@ namespace P7CreateRestApi.Controllers
     {
         private readonly IAuthService _authService;
         private readonly IJwtService _jwtService;
+        private readonly ILogger<AuthController> _logger;
 
-        public AuthController(IAuthService authService, IJwtService jwtService)
+        public AuthController(IAuthService authService, IJwtService jwtService, ILogger<AuthController> logger)
         {
             _authService = authService;
             _jwtService = jwtService;
+            _logger = logger;
         }
 
         [HttpPost("login")]
@@ -31,6 +34,7 @@ namespace P7CreateRestApi.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("User {Username} logged in successfully", loginRequest.Email);
                 return Ok(new
                 {
                     success = true,
@@ -38,7 +42,7 @@ namespace P7CreateRestApi.Controllers
                     data = result.Data
                 });
             }
-
+            _logger.LogError("{Email} ou {Password}", loginRequest.Email,loginRequest.Password);
             return Unauthorized(new
             {
                 success = false,
@@ -58,13 +62,14 @@ namespace P7CreateRestApi.Controllers
 
             if (result.IsSuccess)
             {
+                _logger.LogInformation("The user {UserName} was succesfully registered", registerRequest.Fullname);
                 return Ok(new
                 {
                     success = true,
                     message = result.Data
                 });
             }
-
+            _logger.LogInformation("Registering failed");
             return BadRequest(new
             {
                 success = false,
@@ -135,7 +140,7 @@ namespace P7CreateRestApi.Controllers
                     return BadRequest(ApiResponseDTO<string>.ErrorResult(result.Errors));
                 }
 
-                return Ok(ApiResponseDTO<string>.SuccessResult(result.Data!, result.Message));
+                return Ok(ApiResponseDTO<string>.SuccessResult(result.Data!, result.Message!));
             }
             catch (Exception ex)
             {
@@ -148,7 +153,7 @@ namespace P7CreateRestApi.Controllers
         /// </summary>
         [HttpGet("token-status")]
         [Authorize]
-        public async Task<ActionResult<ApiResponseDTO<TokenStatusDTO>>> GetTokenStatus()
+        public ActionResult<ApiResponseDTO<TokenStatusDTO>> GetTokenStatus()
         {
             try
             {

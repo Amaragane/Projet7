@@ -1,19 +1,21 @@
 ﻿using Dot.Net.WebApi.Data;
+using Dot.Net.WebApi.Domain;
 using Dot.Net.WebApi.Repositories;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using P7CreateRestApi.Repositories.Interfaces;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using P7CreateRestApi.Middleware;
 using P7CreateRestApi.Repositories;
+using P7CreateRestApi.Repositories.Interfaces;
+using P7CreateRestApi.Services;
 using P7CreateRestApi.Services.Auth;
 using P7CreateRestApi.Services.Interfaces;
-using P7CreateRestApi.Services;
-using Microsoft.OpenApi.Models;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
+using System.Security.Claims;
 using System.Text;
-using P7CreateRestApi.Middleware;
-using Dot.Net.WebApi.Domain;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Diagnostics;
 
 var builder = WebApplication.CreateBuilder(args);
 ConfigurationManager configuration = builder.Configuration;
@@ -46,55 +48,88 @@ builder.Services.AddAuthentication(options =>
     options.TokenValidationParameters = new TokenValidationParameters
     {
         ValidateIssuerSigningKey = true,
-        IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(jwtSettings.Key)), // Key est validée
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.Key)), // Key est validée
 
         ValidateIssuer = true,
-        ValidIssuers = new List<string> { jwtSettings.Issuer }, // Issuer validé
         ValidIssuer = jwtSettings.Issuer, // Issuer validé
         ValidateAudience = true,
-        ValidAudiences = new List<string> { jwtSettings.Audience}, // Audience validée
         ValidAudience = jwtSettings.Audience, // Audience validée
         ValidateLifetime = true,
-        ClockSkew = TimeSpan.Zero
+        ClockSkew = TimeSpan.Zero,
+        RoleClaimType = ClaimTypes.Role
+    };
+    options.Events = new JwtBearerEvents
+    {
+        OnAuthenticationFailed = context =>
+        {
+            Console.WriteLine($"Authentication failed: {context.Exception.Message}");
+            return Task.CompletedTask;
+        },
+        OnTokenValidated = context =>
+        {
+            Console.WriteLine("Token validated successfully");
+            return Task.CompletedTask;
+        }
     };
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "P7 Create Rest API", Version = "v1" });
+//builder.Services.AddSwaggerGen(c =>
+//{
+//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "P7 Create Rest API", Version = "v1" });
 
-    // Configure JWT in Swagger
-    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-    {
-        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
-        Name = "Authorization",
-        In = ParameterLocation.Header,
-        Type = SecuritySchemeType.ApiKey,
-        Scheme = "Bearer"
-    });
+//    Configure JWT in Swagger
+//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+//    {
+//        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+//        Name = "Authorization",
+//        In = ParameterLocation.Header,
+//        Type = SecuritySchemeType.ApiKey,
+//        Scheme = "Bearer"
+//    });
 
-    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-    {
-        {
-            new OpenApiSecurityScheme
-            {
-                Reference = new OpenApiReference
-                {
-                    Type = ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
-});
+//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+//    {
+//        {
+//            new OpenApiSecurityScheme
+//            {
+//                Reference = new OpenApiReference
+//                {
+//                    Type = ReferenceType.SecurityScheme,
+//                    Id = "Bearer"
+//                }
+//            },
+//            new string[] {}
+//        }
+//    });
+//});
 builder.Services.AddIdentity<User, IdentityRole>() // ← Utilisez votre classe User ici
         .AddEntityFrameworkStores<LocalDbContext>()
         .AddDefaultTokenProviders();
 builder.Services.AddDbContext<LocalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = 401; // 401 au lieu de redirection
+        return Task.CompletedTask;
+    };
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = 403; // 403 au lieu de redirection
+        return Task.CompletedTask;
+    };
+});
+builder.Services.AddAuthorization(options =>
+{
+    // Définir une politique par défaut qui utilise JWT
+    options.DefaultPolicy = new AuthorizationPolicyBuilder()
+        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme) // Force JWT
+        .RequireAuthenticatedUser()
+        .Build();
+});
 // ============ REPOSITORIES ============
 builder.Services.AddScoped<IBidListRepository, BidListRepository>();
 builder.Services.AddScoped<ICurvePointRepository, CurvePointRepository>();
@@ -120,18 +155,17 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
-    app.UseDeveloperExceptionPage();
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
+    //app.UseDeveloperExceptionPage();
 }
-app.UseExceptionHandler("/error");
-app.MapGet("/error", (HttpContext context) =>
-    Results.Problem(detail: context.Features.Get<IExceptionHandlerFeature>()?.Error.Message));
 app.UseHttpsRedirection();
-
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseMiddleware<TokenRenewalMiddleware>();
+//app.UseExceptionHandler("/error");
+//app.UseMiddleware<TokenRenewalMiddleware>();
 app.MapControllers();
+//app.MapGet("/error", (HttpContext context) =>
+//    Results.Problem(detail: context.Features.Get<IExceptionHandlerFeature>()?.Error.Message));
 app.Run();

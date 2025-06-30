@@ -35,7 +35,7 @@ public class JwtService : IJwtService
                 new Claim(ClaimTypes.Email, user.Email ?? ""),
                 new Claim("fullname", user.Fullname),
                 new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
+                new Claim(JwtRegisteredClaimNames.Iat, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64),
             };
 
         // Fix for CS1503: Convert IList<string> to individual claims for roles
@@ -48,8 +48,8 @@ public class JwtService : IJwtService
         var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken(
-            issuer: _configuration["Jwt:Issuer"],
-            audience: _configuration["Jwt:Audience"],
+            issuer: _configuration["JwtSettings:Issuer"],
+            audience: _configuration["JwtSettings:Audience"],
             claims: claims,
             expires: DateTime.UtcNow.AddHours(1), // ⏰ 1 heures de durée de vie
             signingCredentials: credentials
@@ -82,11 +82,13 @@ public class JwtService : IJwtService
                 ValidateAudience = true,
                 ValidAudience = audience, // 🔑 Utilisation de ValidAudience (singulier)
                 ValidateLifetime = true,
-                ClockSkew = TimeSpan.Zero
+                ClockSkew = TimeSpan.Zero,
+                RoleClaimType = ClaimTypes.Role
             };
 
-            tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
-            return ServiceResult<bool>.Success(true);
+            var principal = tokenHandler.ValidateToken(token, validationParameters, out SecurityToken validatedToken);
+
+            return ServiceResult<bool>.Success(true) ;
         }
         catch (SecurityTokenExpiredException)
         {
@@ -188,7 +190,7 @@ public class JwtService : IJwtService
             }
 
             var user = await _userManager.FindByIdAsync(userIdClaim.Value);
-            if (user == null || !user.IsActive)
+            if (user == null)
             {
                 return ServiceResult<string>.Failure("Utilisateur introuvable ou inactif");
             }

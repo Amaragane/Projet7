@@ -8,16 +8,16 @@ namespace Dot.Net.WebApi.Domain
 
     public class User : IdentityUser
     {
+        int id { get; set; }
+        override public string UserName { get; set; } = null!;
+        public string Password { get; set; } = null!;
         [Required]
         [StringLength(125)]
         public string Fullname { get; set; } = null!;
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? LastLoginAt { get; set; } = null;
         [NotMapped]
         [Required]
         [StringLength(50)]
         public IList<string> Roles { get; set; } = new List<string> { "User" };
 
-        public bool IsActive { get; set; } = true;
     }
 }

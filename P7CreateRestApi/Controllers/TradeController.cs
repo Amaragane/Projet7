@@ -1,18 +1,23 @@
 using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
 using P7CreateRestApi.Services.Interfaces;
+using System.Threading.Tasks;
 
 namespace Dot.Net.WebApi.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("[controller]")]
     public class TradeController : ControllerBase
     {
         private readonly ITradeService _tradeService;
-        public TradeController(ITradeService tradeService)
+        private readonly ILogger<TradeController> _logger;
+        public TradeController(ITradeService tradeService, ILogger<TradeController> logger)
         {
             _tradeService = tradeService;
+            _logger = logger;
         }
 
         [HttpGet]
@@ -21,6 +26,12 @@ namespace Dot.Net.WebApi.Controllers
         {
             // TODO: find all Trade, add to model
             var result = await _tradeService.GetAllTradesAsync();
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to retrieve trades: {Errors}", result.Errors);
+                return NotFound(result.Errors);
+            }
+            _logger.LogInformation("Successfully retrieved {Count} trades", result.Data!.Count());
             return Ok(result.Data);
         }
 
@@ -31,9 +42,16 @@ namespace Dot.Net.WebApi.Controllers
             // validate data and call service to add Trade
             if (!ModelState.IsValid)
             {
+                _logger.LogWarning("Invalid model state for trade creation");
                 return BadRequest(ModelState);
             }
             var result = _tradeService.CreateTradeAsync(trade).Result;
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Failed to create trade: {Errors}", result.Errors);
+                return BadRequest(result.Errors);
+            }
+            _logger.LogInformation("Successfully created trade with ID {TradeId}", result.Data!.TradeId);
             return Ok(result.Data);
         }
 

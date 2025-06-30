@@ -1,9 +1,10 @@
-﻿using Dot.Net.WebApi.Services.Models;
+﻿using Dot.Net.WebApi.Domain;
+using Dot.Net.WebApi.Services.Models;
 using Microsoft.AspNetCore.Identity;
 using P7CreateRestApi.DTO.Maping;
 using P7CreateRestApi.DTO.UsersDTO;
 using P7CreateRestApi.Services.Interfaces;
-using Dot.Net.WebApi.Domain;
+using System.Data;
 
 namespace P7CreateRestApi.Services
 {
@@ -87,8 +88,8 @@ namespace P7CreateRestApi.Services
                     PhoneNumber = createUser.PhoneNumber,
                     Roles = createUser.Roles,
                     EmailConfirmed = true,
-                    IsActive = true,
-                    CreatedAt = DateTime.UtcNow
+                    Password = createUser.Password
+
                 };
 
                 // Créer avec UserManager (gère le hachage du mot de passe)
@@ -102,6 +103,12 @@ namespace P7CreateRestApi.Services
                     return ServiceResult<UserDTO>.Failure(errors);
                 }
 
+                // Étape 2: Assignation des rôles
+                if (newUser.Roles != null && newUser.Roles.Any())
+                {
+
+                    result = await _userManager.AddToRolesAsync(newUser, newUser.Roles);
+                }
                 _logger?.LogInformation("User created successfully: {Email}", createUser.Email);
                 var userDTO = UserDTOMappings.ToUserDTO(newUser);
                 return ServiceResult<UserDTO>.Success(userDTO);
@@ -151,7 +158,6 @@ namespace P7CreateRestApi.Services
                 user.Fullname = updateUser.Fullname;
                 user.PhoneNumber = updateUser.PhoneNumber;
                 user.EmailConfirmed = updateUser.EmailConfirmed;
-                user.IsActive = updateUser.IsActive;
 
                 var result = await _userManager.UpdateAsync(user);
                 if (!result.Succeeded)

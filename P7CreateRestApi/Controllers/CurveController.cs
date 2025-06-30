@@ -1,28 +1,38 @@
 using Dot.Net.WebApi.Domain;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using P7CreateRestApi.Repositories.Interfaces;
-using P7CreateRestApi.Services.Interfaces;
 using P7CreateRestApi.DTO.CurveDTO;
 using P7CreateRestApi.DTO.Maping;
-using Microsoft.AspNetCore.Authorization;
+using P7CreateRestApi.Repositories.Interfaces;
+using P7CreateRestApi.Services.Interfaces;
 
 namespace Dot.Net.WebApi.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("[controller]")]
     public class CurveController : ControllerBase
     {
         private readonly ICurvePointService _curvePointService;
-        public CurveController(ICurvePointService service)
+        private readonly ILogger<CurveController> _logger;
+        public CurveController(ICurvePointService service, ILogger<CurveController> logger)
         {
             _curvePointService = service;
+            _logger = logger;
         }
-        [AllowAnonymous]
+        [Authorize(Roles = "Admin,User")]
         [HttpGet]
         [Route("list")]
         public async Task<IActionResult> Home()
         {
             var result = await _curvePointService.GetAllCurvePointsAsync();
+            if (!result.IsSuccess)
+            {
+                _logger.LogError("Error retrieving CurvePoints: {Errors}", result.Errors);
+                return BadRequest(result.Errors);
+            }
+            _logger.LogInformation("CurvePoints retrieved successfully.");
             return Ok(result.Data);
         }
 
@@ -34,19 +44,23 @@ namespace Dot.Net.WebApi.Controllers
             // Validate the curvePoint object
             if (curvePoint == null)
             {
+                _logger.LogError("CurvePoint data is null.");
                 return BadRequest("CurvePoint data is required.");
             }
             if (!ModelState.IsValid)
             {
+                _logger.LogError("Invalid CurvePoint data: {Errors}", ModelState.Values.SelectMany(v => v.Errors));
                 return BadRequest("Invalid CurvePoint data.");
             }
             // If validation is successful, save the curvePoint to the database
             var result =  await _curvePointService.CreateCurvePointAsync(curvePointEntity);
             if (!result.IsSuccess)
             {
+                _logger.LogError("Error creating CurvePoint: {Errors}", result.Errors);
                 return BadRequest(result.Errors);
             }
             // Return the created curvePoint
+            _logger.LogInformation("CurvePoint created successfully with ID {Id}", result.Data!.Id);
             return Ok(result.Data);
         }
 
@@ -59,9 +73,10 @@ namespace Dot.Net.WebApi.Controllers
             var curvePoint = await _curvePointService.GetCurvePointByIdAsync(id);
             if (curvePoint == null)
             {
+                _logger.LogWarning("CurvePoint with ID {Id} not found.", id);
                 return NotFound($"CurvePoint with ID {id} not found.");
             }
-
+            _logger.LogInformation("CurvePoint with ID {Id} retrieved successfully.", id);
             return Ok(curvePoint);
 
         }
@@ -73,10 +88,12 @@ namespace Dot.Net.WebApi.Controllers
             // TODO: check required fields, if valid call service to update Curve and return Curve list
             if (curvePoint == null)
             {
+                _logger.LogError("CurvePoint data is null.");
                 return BadRequest("CurvePoint data is required.");
             }
             if (id <= 0)
             {
+                _logger.LogError("Invalid CurvePoint ID: {Id}", id);
                 return BadRequest("Invalid CurvePoint ID.");
             }
             // Convert GetUpdateCurvePointDTO to CurvePoint entity
@@ -85,8 +102,10 @@ namespace Dot.Net.WebApi.Controllers
             var result = await _curvePointService.UpdateCurvePointAsync(id, curvePointEntity);
             if (!result.IsSuccess)
             {
+                _logger.LogError("Error updating CurvePoint with ID {Id}: {Errors}", id, result.Errors);
                 return BadRequest(result.Errors);
             }
+            _logger.LogInformation("CurvePoint with ID {Id} updated successfully.", id);
             return Ok(result.Data);
 
         }
@@ -98,13 +117,16 @@ namespace Dot.Net.WebApi.Controllers
             // TODO: Find Curve by Id and delete the Curve, return to Curve list
             if (id <= 0)
             {
+                _logger.LogError("Invalid CurvePoint ID: {Id}", id);
                 return BadRequest("Invalid CurvePoint ID.");
             }
             var result = await _curvePointService.DeleteCurvePointAsync(id);
             if (!result.IsSuccess)
             {
+                _logger.LogError("Error deleting CurvePoint with ID {Id}: {Errors}", id, result.Errors);
                 return BadRequest(result.Errors);
             }
+            _logger.LogInformation("CurvePoint with ID {Id} deleted successfully.", id);
             return Ok(new { Message = "CurvePoint deleted successfully." });
 
         }

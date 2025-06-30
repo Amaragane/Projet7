@@ -1,12 +1,13 @@
-using Microsoft.EntityFrameworkCore;
-using Dot.Net.WebApi.Domain;
-using Dot.Net.WebApi.Controllers.Domain;
 using Dot.Net.WebApi.Controllers;
+using Dot.Net.WebApi.Controllers.Domain;
+using Dot.Net.WebApi.Domain;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Dot.Net.WebApi.Data
 {
-    public class LocalDbContext : DbContext
+    public class LocalDbContext : IdentityDbContext<User>
     {
         public LocalDbContext(DbContextOptions<LocalDbContext> options) : base(options) { }
 
@@ -28,7 +29,6 @@ namespace Dot.Net.WebApi.Data
             // ...
         }
 
-        public DbSet<User> Users { get; set; }
         public DbSet<BidList> BidLists { get; set; }
         public DbSet<Trade> Trades { get; set; }
         public DbSet<CurvePoint> CurvePoints { get; set; }
