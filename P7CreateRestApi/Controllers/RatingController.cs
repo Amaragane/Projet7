@@ -65,7 +65,7 @@ namespace Dot.Net.WebApi.Controllers
         {
             // TODO: get Rating by Id and to model then show to the form
             var rating = await _services.GetRatingByIdAsync(id);
-            if (rating.IsSuccess)
+            if (!rating.IsSuccess)
             {
                 _logger.LogInformation("Successfully retrieved rating with ID {RatingId} for update", id);
                 return NotFound(rating.Errors);

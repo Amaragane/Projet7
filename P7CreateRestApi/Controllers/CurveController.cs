@@ -67,7 +67,7 @@ namespace Dot.Net.WebApi.Controllers
 
         [HttpGet]
         [Route("update/{id}")]
-        public async Task<IActionResult>ShowUpdateForm(int id)
+        public async Task<IActionResult>GetCurvePoint(int id)
         {
             // TODO: get CurvePoint by Id and to model then show to the form
             var curvePoint = await _curvePointService.GetCurvePointByIdAsync(id);
@@ -77,7 +77,7 @@ namespace Dot.Net.WebApi.Controllers
                 return NotFound($"CurvePoint with ID {id} not found.");
             }
             _logger.LogInformation("CurvePoint with ID {Id} retrieved successfully.", id);
-            return Ok(curvePoint);
+            return Ok(curvePoint.Data);
 
         }
 

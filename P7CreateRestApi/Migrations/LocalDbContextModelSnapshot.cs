@@ -437,21 +437,21 @@ namespace P7CreateRestApi.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "6efc2e8e-1762-4597-8c8f-86d2f23df433",
+                            ConcurrencyStamp = "2eeb159b-0379-46ac-b774-d1e398508f8b",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "427f2d2b-978f-401e-8dd5-16884dbb5f95",
+                            ConcurrencyStamp = "4ecc4bc4-79be-4ae1-a0cd-2b78f928928b",
                             Name = "User",
                             NormalizedName = "USER"
                         },
                         new
                         {
                             Id = "3",
-                            ConcurrencyStamp = "48ea318a-9a9b-4725-88d4-e4ad45d2850a",
+                            ConcurrencyStamp = "dfa0da39-6f9f-4518-bfff-9f24666e3085",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         });

@@ -4,6 +4,7 @@ using P7CreateRestApi.Models;
 using Dot.Net.WebApi.Services.Models;
 using Dot.Net.WebApi.Domain;
 using P7CreateRestApi.DTO.UsersDTO;
+using P7CreateRestApi.DTO.Maping;
 
 namespace P7CreateRestApi.Services.Auth
 {
@@ -87,33 +88,41 @@ namespace P7CreateRestApi.Services.Auth
                     return ServiceResult<AuthResponseDTO>.Failure("Un utilisateur avec cet email existe déjà");
                 }
 
-                var existingUserByUsername = await _userManager.FindByNameAsync(registerRequest.Username);
+                var existingUserByUsername = await _userManager.FindByNameAsync(registerRequest.UserName);
                 if (existingUserByUsername != null)
                 {
                     return ServiceResult<AuthResponseDTO>.Failure("Ce nom d'utilisateur est déjà pris");
                 }
 
                 // Création de l'utilisateur
-                var user = new User
+                var newUser = new User
                 {
-                    UserName = registerRequest.Username,
+                    UserName = registerRequest.UserName,
                     Email = registerRequest.Email,
                     Fullname = registerRequest.Fullname,
                     PhoneNumber = registerRequest.PhoneNumber,
-                    Roles = registerRequest.Roles,
+                    Roles = { "User"},
                     EmailConfirmed = true,
+                    Password = ""
 
                 };
                 // UserManager gère le hachage du mot de passe automatiquement
-                var result = await _userManager.CreateAsync(user, registerRequest.Password);
+                var result = await _userManager.CreateAsync(newUser, registerRequest.Password);
                 if (!result.Succeeded)
                 {
                     var errors = result.Errors.Select(e => e.Description).ToList();
                     return ServiceResult<AuthResponseDTO>.Failure(errors);
                 }
+                if (newUser.Roles != null && newUser.Roles.Any())
+                {
+
+                    result = await _userManager.AddToRolesAsync(newUser, newUser.Roles);
+                }
+                _logger?.LogInformation("User created successfully: {Email}", registerRequest.Email);
+                var userDTO = UserDTOMappings.ToUserDTO(newUser);
 
                 // Générer le token JWT
-                var jwtToken = await _jwtService.GenerateTokenAsync(user);
+                var jwtToken = await _jwtService.GenerateTokenAsync(newUser);
 
                 var response = new AuthResponseDTO
                 {
@@ -122,14 +131,14 @@ namespace P7CreateRestApi.Services.Auth
                     ExpiresAt = DateTime.UtcNow.AddMinutes(60),
                     User = new UserDTO
                     {
-                        Id = user.Id,
-                        Email = user.Email ?? "",
-                        Username = user.UserName ?? "",
-                        Fullname = user.Fullname,
-                        PhoneNumber = user.PhoneNumber,
-                        Roles = user.Roles,
+                        Id = newUser.Id,
+                        Email = newUser.Email ?? "",
+                        Username = newUser.UserName ?? "",
+                        Fullname = newUser.Fullname,
+                        PhoneNumber = newUser.PhoneNumber,
+                        Roles = newUser.Roles!,
 
-                        EmailConfirmed = user.EmailConfirmed
+                        EmailConfirmed = newUser.EmailConfirmed
                     }
                 };
 

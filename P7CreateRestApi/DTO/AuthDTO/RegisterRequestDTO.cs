@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Identity;
+using System.ComponentModel.DataAnnotations;
 
 namespace P7CreateRestApi.DTO.AuthDTO
 {
@@ -6,11 +7,11 @@ namespace P7CreateRestApi.DTO.AuthDTO
     {
         [Required(ErrorMessage = "Email is required")]
         [EmailAddress(ErrorMessage = "Invalid email format")]
-        public string Email { get; set; } = null!;
+         public string Email { get; set; } = null!;
 
         [Required(ErrorMessage = "Username is required")]
         [StringLength(50, MinimumLength = 3, ErrorMessage = "Username must be between 3 and 50 characters")]
-        public string Username { get; set; } = null!;
+         public string UserName { get; set; } = null!;
 
         [Required(ErrorMessage = "Password is required")]
         [StringLength(100, MinimumLength = 6, ErrorMessage = "Password must be between 6 and 100 characters")]
@@ -27,8 +28,8 @@ namespace P7CreateRestApi.DTO.AuthDTO
         public string Fullname { get; set; } = null!;
 
         [Phone(ErrorMessage = "Invalid phone number format")]
-        public string? PhoneNumber { get; set; }
-
-        public IList<string> Roles { get; internal set; }
+         public string? PhoneNumber { get; set; }
+        [Required]
+        public IList<string>? Roles { get; set; }
     }
 }

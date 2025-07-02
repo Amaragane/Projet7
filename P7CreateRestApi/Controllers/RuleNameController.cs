@@ -76,12 +76,12 @@ namespace Dot.Net.WebApi.Controllers
                 _logger.LogWarning("Invalid model state for rule update with ID {RuleId}", id);
                 return BadRequest(ModelState);
             }
-            var existingRuleName = await _ruleNameService.GetRuleByIdAsync(id);
-            if (!existingRuleName.IsSuccess)
+            if (id <= 0)
             {
-                _logger.LogError("Failed to find existing rule with ID {RuleId}: {Errors}", id, existingRuleName.Errors);
-                return NotFound(existingRuleName.Errors);
+                _logger.LogError("Invalid rule ID: {RuleId}", id);
+                return BadRequest("Invalid rule ID");
             }
+
             var result = await _ruleNameService.UpdateRuleAsync(id, rating);
             if (!result.IsSuccess)
             {
@@ -106,5 +106,7 @@ namespace Dot.Net.WebApi.Controllers
             _logger.LogInformation("Successfully deleted rule with ID {RuleId}", id);
             return RedirectToAction("Home");
         }
+        
+
     }
 }

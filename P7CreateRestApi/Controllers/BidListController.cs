@@ -50,10 +50,10 @@ namespace Dot.Net.WebApi.Controllers
         }
 
 
-        [HttpPost]
+        [HttpGet]
         [Authorize(Roles = "User")]
-        [Route("update/{id}")]
-        public async Task<IActionResult> ShowUpdateForm(int id)
+        [Route("get/{id}")]
+        public async Task<IActionResult> GetBid(int id)
         {
             // TODO: get bid by Id and to model then show to the form
             if (id <= 0)

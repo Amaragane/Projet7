@@ -8,7 +8,8 @@ namespace Dot.Net.WebApi.Domain
 
     public class User : IdentityUser
     {
-        int id { get; set; }
+        [Key]
+        override public string Id { get; set; } = null!;
         override public string UserName { get; set; } = null!;
         public string Password { get; set; } = null!;
         [Required]

@@ -91,7 +91,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
-        [Authorize]
+        [Authorize(Roles ="Admin")]
         [Route("{id}")]
         public async Task<IActionResult> DeleteUser(int id)
         {
