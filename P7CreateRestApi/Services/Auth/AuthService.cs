@@ -101,7 +101,7 @@ namespace P7CreateRestApi.Services.Auth
                     Email = registerRequest.Email,
                     Fullname = registerRequest.Fullname,
                     PhoneNumber = registerRequest.PhoneNumber,
-                    Roles = { "User"},
+                    Roles = registerRequest.Roles,
                     EmailConfirmed = true,
                     Password = ""
 
