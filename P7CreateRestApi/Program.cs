@@ -26,16 +26,7 @@ builder.Services.AddControllers();
 builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
-if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
-{
-    throw new InvalidOperationException("JWT settings are not properly configured");
-}
-if (string.IsNullOrWhiteSpace(jwtSettings.Key))
-    throw new InvalidOperationException("JWT Key is not configured");
-if (string.IsNullOrWhiteSpace(jwtSettings.Issuer))
-    throw new InvalidOperationException("JWT Issuer is not configured");
-if (string.IsNullOrWhiteSpace(jwtSettings.Audience))
-    throw new InvalidOperationException("JWT Audience is not configured");
+
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -122,14 +113,13 @@ builder.Services.ConfigureApplicationCookie(options =>
         return Task.CompletedTask;
     };
 });
-builder.Services.AddAuthorization(options =>
-{
-    // Définir une politique par défaut qui utilise JWT
-    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme) // Force JWT
-        .RequireAuthenticatedUser()
-        .Build();
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    //options.DefaultPolicy = new AuthorizationPolicyBuilder()
+//        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme) // Force JWT
+//        .RequireAuthenticatedUser()
+//        .Build();
+//});
 // ============ REPOSITORIES ============
 builder.Services.AddScoped<IBidListRepository, BidListRepository>();
 builder.Services.AddScoped<ICurvePointRepository, CurvePointRepository>();
@@ -150,6 +140,8 @@ builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IRuleNameService, RuleNameService>();
 builder.Services.AddScoped<ITradeService, TradeService>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -160,12 +152,13 @@ if (app.Environment.IsDevelopment())
     app.UseDeveloperExceptionPage();
 }
 app.UseHttpsRedirection();
-app.UseRouting();
+//app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 //app.UseExceptionHandler("/error");
 //app.UseMiddleware<TokenRenewalMiddleware>();
-app.MapControllers();
-//app.MapGet("/error", (HttpContext context) =>
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");//app.MapGet("/error", (HttpContext context) =>
 //    Results.Problem(detail: context.Features.Get<IExceptionHandlerFeature>()?.Error.Message));
 app.Run();

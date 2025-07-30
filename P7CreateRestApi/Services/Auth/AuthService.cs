@@ -48,7 +48,7 @@ namespace P7CreateRestApi.Services.Auth
                 await _userManager.UpdateAsync(user);
 
                 // Générer le token JWT
-                var jwtToken = await _jwtService.GenerateTokenAsync(user);
+                var jwtToken = _jwtService.GenerateTokenAsync(user);
 
                 var response = new AuthResponseDTO
                 {
@@ -122,7 +122,7 @@ namespace P7CreateRestApi.Services.Auth
                 var userDTO = UserDTOMappings.ToUserDTO(newUser);
 
                 // Générer le token JWT
-                var jwtToken = await _jwtService.GenerateTokenAsync(newUser);
+                var jwtToken = _jwtService.GenerateTokenAsync(newUser);
 
                 var response = new AuthResponseDTO
                 {

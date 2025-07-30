@@ -150,5 +150,15 @@
     "C:\\Users\\Micka\\.nuget\\packages\\xunit.extensibility.execution\\2.5.3\\xunit.extensibility.execution.2.5.3.nupkg.sha512",
     "C:\\Users\\Micka\\.nuget\\packages\\xunit.runner.visualstudio\\2.5.3\\xunit.runner.visualstudio.2.5.3.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "Undefined",
+      "level": "Warning",
+      "message": "Problème de lecture du fichier cache C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\obj\\project.nuget.cache\u00A0: '<' is an invalid start of a property name. Expected a '\"'. Path: $ | LineNumber: 2 | BytePositionInLine: 0.",
+      "projectPath": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\P7Test.csproj",
+      "warningLevel": 1,
+      "filePath": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\P7Test.csproj",
+      "targetGraphs": []
+    }
+  ]
 }

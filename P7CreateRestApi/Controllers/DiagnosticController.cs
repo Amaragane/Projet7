@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.Services.Auth;
 
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+//[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 [Route("api/diag")]
 public class DiagnosticController : ControllerBase
 {
@@ -35,6 +35,27 @@ public class DiagnosticController : ControllerBase
     }
     [HttpGet("manual-validation")]
     public IActionResult ManualValidation([FromServices] IJwtService jwtService)
+    {
+        var authHeader = Request.Headers["Authorization"].FirstOrDefault();
+        if (string.IsNullOrEmpty(authHeader)) return Unauthorized();
+        var isAuthenticated = User.Identity?.IsAuthenticated ?? false;
+
+        var token = authHeader.Replace("Bearer ", "");
+        var result = jwtService.ValidateTokenAsync(token).Data;
+
+        var claims = User.Claims.Select(c => new { c.Type, c.Value }).ToList();
+
+        return Ok(new
+        {
+            Resultat = result,
+            Token = token,
+            IsAuthenticated = isAuthenticated,
+            Claims = claims
+        });
+    }
+    [HttpGet("manual-validation-token")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    public IActionResult ManualValidationToken([FromServices] IJwtService jwtService)
     {
         var authHeader = Request.Headers["Authorization"].FirstOrDefault();
         if (string.IsNullOrEmpty(authHeader)) return Unauthorized();

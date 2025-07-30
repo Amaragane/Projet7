@@ -22,6 +22,7 @@ namespace Dot.Net.WebApi.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         [Route("list")]
         public IActionResult Home()
         {
@@ -38,6 +39,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         [Route("add")]
         public IActionResult AddRatingForm([FromBody]Rating rating)
         {
@@ -60,6 +62,7 @@ namespace Dot.Net.WebApi.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         [Route("update/{id}")]
         public async Task<IActionResult> ShowUpdateForm(int id)
         {
@@ -80,6 +83,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         [Route("update/{id}")]
         public async Task<IActionResult> UpdateRating(int id, [FromBody] Rating rating)
         {
@@ -102,6 +106,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "User")]
         [Route("{id}")]
         public async Task<IActionResult> DeleteRating(int id)
         {

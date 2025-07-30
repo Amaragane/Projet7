@@ -1,13 +1,16 @@
 using Dot.Net.WebApi.Domain;
-using P7CreateRestApi.Services.Interfaces;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using P7CreateRestApi.DTO.Maping;
 using P7CreateRestApi.DTO.UsersDTO;
-using Microsoft.AspNetCore.Authorization;
+using P7CreateRestApi.Services.Interfaces;
 
 namespace Dot.Net.WebApi.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     [Route("[controller]")]
     public class UserController : ControllerBase
     {
@@ -21,6 +24,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         [Route("list")]
         public IActionResult Home()
         {
@@ -55,6 +59,7 @@ namespace Dot.Net.WebApi.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         [Route("update/{id}")]
         public async Task<IActionResult> ShowUpdateForm(int id)
         {
@@ -70,6 +75,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         [Route("update/{id}")]
         public async Task<IActionResult> UpdateUser(int id, [FromBody] UpdateUserDTO user)
         {
