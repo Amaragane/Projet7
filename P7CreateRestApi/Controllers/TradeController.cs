@@ -9,6 +9,7 @@ namespace Dot.Net.WebApi.Controllers
 {
     [ApiController]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [Authorize(Roles = "User")]
     [Route("[controller]")]
     public class TradeController : ControllerBase
     {

@@ -8,6 +8,8 @@ using P7CreateRestApi.Services.Auth;
 namespace P7CreateRestApi.Controllers
 {
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+
     [Route("api/[controller]")]
     public class AuthController : ControllerBase
     {

@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 namespace Dot.Net.WebApi.Controllers
 {
     [ApiController]
-    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    //[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     [Route("[controller]")]
     public class BidListController : ControllerBase
     {
@@ -96,6 +96,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "User")]
         [Route("{id}")]
         public async Task<IActionResult> DeleteBid(int id)
         {

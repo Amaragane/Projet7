@@ -7,7 +7,7 @@ namespace P7CreateRestApi.Services.Auth
 {
     public interface IJwtService
     {
-        Task<string> GenerateTokenAsync(User user);
+        string GenerateTokenAsync(User user);
         ServiceResult<bool> ValidateTokenAsync(string token);
         ClaimsPrincipal? GetPrincipalFromToken(string token);
         bool IsTokenExpiringSoon(string token, int minutesBeforeExpiry = 15);

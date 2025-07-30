@@ -1,23 +1,23 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\P7Test.csproj": {}
+    "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7Test\\P7Test.csproj": {}
   },
   "projects": {
-    "C:\\Users\\Micka\\source\\repos\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj": {
+    "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj",
+        "projectUniqueName": "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj",
         "projectName": "P7CreateRestApi",
-        "projectPath": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj",
-        "packagesPath": "C:\\Users\\Micka\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7CreateRestApi\\obj\\",
+        "projectPath": "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj",
+        "packagesPath": "C:\\Users\\micka\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7CreateRestApi\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Micka\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\micka\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -44,7 +44,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net6.0": {
@@ -116,24 +116,24 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203\\RuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301\\RuntimeIdentifierGraph.json"
         }
       }
     },
-    "C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\P7Test.csproj": {
+    "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7Test\\P7Test.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\P7Test.csproj",
+        "projectUniqueName": "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7Test\\P7Test.csproj",
         "projectName": "P7Test",
-        "projectPath": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\P7Test.csproj",
-        "packagesPath": "C:\\Users\\Micka\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7Test\\obj\\",
+        "projectPath": "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7Test\\P7Test.csproj",
+        "packagesPath": "C:\\Users\\micka\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7Test\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
         ],
         "configFilePaths": [
-          "C:\\Users\\Micka\\AppData\\Roaming\\NuGet\\NuGet.Config",
+          "C:\\Users\\micka\\AppData\\Roaming\\NuGet\\NuGet.Config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
@@ -148,8 +148,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "C:\\Users\\Micka\\source\\repos\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj": {
-                "projectPath": "C:\\Users\\Micka\\source\\repos\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj"
+              "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj": {
+                "projectPath": "C:\\Users\\micka\\source\\repos\\Amaragane\\Projet7\\P7CreateRestApi\\P7CreateRestApi.csproj"
               }
             }
           }
@@ -164,7 +164,7 @@
           "auditLevel": "low",
           "auditMode": "direct"
         },
-        "SdkAnalysisLevel": "9.0.200"
+        "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
         "net8.0": {
@@ -202,26 +202,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.15, 8.0.15]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.15, 8.0.15]"
-            },
-            {
-              "name": "Microsoft.WindowsDesktop.App.Ref",
-              "version": "[8.0.15, 8.0.15]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.203/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.301/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

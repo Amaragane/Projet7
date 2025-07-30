@@ -26,7 +26,7 @@ public class JwtService : IJwtService
     /// <summary>
     /// ✅ Génère un token JWT avec durée de vie raisonnable
     /// </summary>
-    public async Task<string> GenerateTokenAsync(User user)
+    public string GenerateTokenAsync(User user)
     {
         var claims = new List<Claim>
             {
@@ -50,7 +50,7 @@ public class JwtService : IJwtService
         var token = new JwtSecurityToken(
             issuer: _configuration["JwtSettings:Issuer"],
             audience: _configuration["JwtSettings:Audience"],
-            claims: claims,
+            claims,
             expires: DateTime.UtcNow.AddHours(1), // ⏰ 1 heures de durée de vie
             signingCredentials: credentials
         );
@@ -196,7 +196,7 @@ public class JwtService : IJwtService
             }
 
             // 5. Générer un nouveau token
-            var newToken = await GenerateTokenAsync(user);
+            var newToken =  GenerateTokenAsync(user);
 
             _logger.LogInformation("Token renewed for user {UserId}", user.Id);
             return ServiceResult<string>.Success(newToken, "Token renouvelé avec succès");

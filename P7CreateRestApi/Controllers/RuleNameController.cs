@@ -21,6 +21,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         [Route("list")]
         public async Task<IActionResult> Home()
         {
@@ -31,6 +32,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         [Route("add")]
         public async Task<IActionResult> AddRuleName([FromBody]RuleName trade)
         {
@@ -51,6 +53,7 @@ namespace Dot.Net.WebApi.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         [Route("update/{id}")]
         public async Task<IActionResult> ShowUpdateForm(int id)
         {
@@ -67,6 +70,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
         [Route("update/{id}")]
         public async Task<IActionResult> UpdateRuleName(int id, [FromBody] RuleName rating)
         {
@@ -93,6 +97,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "User")]
         [Route("{id}")]
         public async Task<IActionResult> DeleteRuleName(int id)
         {

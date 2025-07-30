@@ -37,6 +37,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles ="User")]
         [Route("add")]
         public async  Task<IActionResult> AddCurvePoint([FromBody] CreateCurvePointDTO curvePoint)
         {
@@ -66,6 +67,7 @@ namespace Dot.Net.WebApi.Controllers
 
 
         [HttpGet]
+        [Authorize(Roles = "User")]
         [Route("update/{id}")]
         public async Task<IActionResult>GetCurvePoint(int id)
         {
@@ -82,6 +84,8 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "User")]
+
         [Route("update/{id}")]
         public async Task<IActionResult> UpdateCurvePoint(int id, [FromBody] GetUpdateCurvePointDTO curvePoint)
         {
@@ -111,6 +115,7 @@ namespace Dot.Net.WebApi.Controllers
         }
 
         [HttpDelete]
+        [Authorize(Roles = "User")]
         [Route("{id}")]
         public async Task<IActionResult> DeleteCurve(int id)
         {

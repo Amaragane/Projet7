@@ -26,16 +26,7 @@ builder.Services.AddControllers();
 builder.Services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
 var jwtSettings = configuration.GetSection("JwtSettings").Get<JwtSettings>();
 
-if (jwtSettings == null || string.IsNullOrEmpty(jwtSettings.Key))
-{
-    throw new InvalidOperationException("JWT settings are not properly configured");
-}
-if (string.IsNullOrWhiteSpace(jwtSettings.Key))
-    throw new InvalidOperationException("JWT Key is not configured");
-if (string.IsNullOrWhiteSpace(jwtSettings.Issuer))
-    throw new InvalidOperationException("JWT Issuer is not configured");
-if (string.IsNullOrWhiteSpace(jwtSettings.Audience))
-    throw new InvalidOperationException("JWT Audience is not configured");
+
 
 // Add JWT Authentication
 builder.Services.AddAuthentication(options =>
@@ -75,35 +66,34 @@ builder.Services.AddAuthentication(options =>
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-//builder.Services.AddSwaggerGen(c =>
-//{
-//    c.SwaggerDoc("v1", new OpenApiInfo { Title = "P7 Create Rest API", Version = "v1" });
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "P7 Create Rest API", Version = "v1" });
 
-//    Configure JWT in Swagger
-//    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
-//    {
-//        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
-//        Name = "Authorization",
-//        In = ParameterLocation.Header,
-//        Type = SecuritySchemeType.ApiKey,
-//        Scheme = "Bearer"
-//    });
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Description = "JWT Authorization header using the Bearer scheme. Enter 'Bearer' [space] and then your token in the text input below.",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer"
+    });
 
-//    c.AddSecurityRequirement(new OpenApiSecurityRequirement
-//    {
-//        {
-//            new OpenApiSecurityScheme
-//            {
-//                Reference = new OpenApiReference
-//                {
-//                    Type = ReferenceType.SecurityScheme,
-//                    Id = "Bearer"
-//                }
-//            },
-//            new string[] {}
-//        }
-//    });
-//});
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 builder.Services.AddIdentity<User, IdentityRole>() // ← Utilisez votre classe User ici
         .AddEntityFrameworkStores<LocalDbContext>()
         .AddDefaultTokenProviders();
@@ -122,14 +112,13 @@ builder.Services.ConfigureApplicationCookie(options =>
         return Task.CompletedTask;
     };
 });
-builder.Services.AddAuthorization(options =>
-{
-    // Définir une politique par défaut qui utilise JWT
-    options.DefaultPolicy = new AuthorizationPolicyBuilder()
-        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme) // Force JWT
-        .RequireAuthenticatedUser()
-        .Build();
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//    //options.DefaultPolicy = new AuthorizationPolicyBuilder()
+//        .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme) // Force JWT
+//        .RequireAuthenticatedUser()
+//        .Build();
+//});
 // ============ REPOSITORIES ============
 builder.Services.AddScoped<IBidListRepository, BidListRepository>();
 builder.Services.AddScoped<ICurvePointRepository, CurvePointRepository>();
@@ -150,22 +139,25 @@ builder.Services.AddScoped<IRatingService, RatingService>();
 builder.Services.AddScoped<IRuleNameService, RuleNameService>();
 builder.Services.AddScoped<ITradeService, TradeService>();
 builder.Services.AddScoped<IUserService, UserService>();
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    //app.UseSwagger();
-    //app.UseSwaggerUI();
-    //app.UseDeveloperExceptionPage();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseDeveloperExceptionPage();
 }
 app.UseHttpsRedirection();
-app.UseRouting();
+//app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 //app.UseExceptionHandler("/error");
 //app.UseMiddleware<TokenRenewalMiddleware>();
-app.MapControllers();
-//app.MapGet("/error", (HttpContext context) =>
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");//app.MapGet("/error", (HttpContext context) =>
 //    Results.Problem(detail: context.Features.Get<IExceptionHandlerFeature>()?.Error.Message));
 app.Run();
